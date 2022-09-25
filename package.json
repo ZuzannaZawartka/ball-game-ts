@@ -1,0 +1,20 @@
+{
+  "name": "ball-game-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc script.ts -w --lib ES7,DOM"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZuzannaZawartka/ball-game-ts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZuzannaZawartka/ball-game-ts/issues"
+  },
+  "homepage": "https://github.com/ZuzannaZawartka/ball-game-ts#readme"
+}
