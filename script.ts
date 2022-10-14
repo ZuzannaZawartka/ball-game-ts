@@ -170,7 +170,7 @@ class PathFinding {
         for (let i = 0; i < this.cols; i++) {
             this.grid[i] = []
             for (let j = 0; j < this.rows; j++) {
-                this.grid[i][j] = new GridPoint(i, j);
+                //this.grid[i][j] = new GridPoint(i, j);
             }
         }
     }
@@ -189,7 +189,7 @@ class GridPoint extends PathFinding {
     finalCost: number; //total cost
     toGridPointCost: number; // from start to current grid point
     heuristicCost: number;
-    neighbors: []; //poprawy typy
+    // neighbors: []; //poprawy typy
     parent = undefined; //popraw typy
 
     constructor(cords: { x: number, y: number }) {
@@ -199,7 +199,7 @@ class GridPoint extends PathFinding {
         this.finalCost = 0
         this.toGridPointCost = 0
         this.heuristicCost = 0
-        this.neighbors = any[]
+        //  this.neighbors = any[]
         this.parent = undefined
     }
 
@@ -207,16 +207,16 @@ class GridPoint extends PathFinding {
         let i = this.x
         let j = this.y
         if (i < this.cols - 1) {
-            this.neighbors.push(this.grid[i + 1][j]);
+            // this.neighbors.push(this.grid[i + 1][j]);
         }
         if (i > 0) {
-            this.neighbors.push(this.grid[i - 1][j]);
+            //  this.neighbors.push(this.grid[i - 1][j]);
         }
         if (j < this.rows - 1) {
-            this.neighbors.push(this.grid[i][j + 1]);
+            //  this.neighbors.push(this.grid[i][j + 1]);
         }
         if (j > 0) {
-            this.neighbors.push(grid[i][j - 1]);
+            //  this.neighbors.push(grid[i][j - 1]);
         }
     }
 
