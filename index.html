@@ -10,13 +10,38 @@
     <style>
         #root {
             display: grid;
-            grid-template-columns: repeat(5, 51px);
+            grid-template-columns: repeat(9, 51px);
+            justify-content: center;
+        }
+
+        .point {
+            position: relative;
+        }
+
+        .ball {
+            border-radius: 100%;
+            position: absolute;
+            top: 8%;
+            left: 5%;
+        }
+
+        #box {
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
-    <div id="root"></div>
+    <div id="box">
+        <h1>Ball Game</h1>
+        <div id="root"></div>
+    </div>
+
     <script src="/script.js"></script>
 </body>
 

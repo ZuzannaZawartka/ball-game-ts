@@ -3,44 +3,131 @@ interface cordsx {
     y: number
 }
 
+class Ball {
+
+    id: string;
+    size: number;
+    color: string;
+
+    constructor(theID: string, theSize: number) {
+        this.id = theID;
+        this.size = theSize;
+        this.color = this.getRandomColor()
+        this.create()
+    }
+
+
+    getRandomColor() {
+        let colors = ["#8c10eb", "#10ceeb", "#06a144", "#deca16", "#d9840d", "#9c2414", "#95149c"]
+        return colors[Math.floor(Math.random() * (colors.length - 1))];
+    }
+
+    create() {
+        let element = document.createElement("div")
+        element.id = this.id
+        element.classList.add("ball")
+        element.setAttribute('style', `width: ${this.size}px; height: ${this.size}px; border:1px solid black;background-color:${this.color}`);
+        return element;
+    }
+
+}
+
+
+class BallList {
+
+    balls: Array<Ball>
+    squareList: SquareList
+    size: number
+
+    constructor(squareList: SquareList) {
+        this.squareList = squareList
+        this.balls = []
+        this.size = 40;
+    }
+
+    generateBalls(numberOfObstacle: number) {
+        for (let i = 0; i < numberOfObstacle; i++) {
+            let target_cords: cordsx = { x: generateRandomInteger(0, this.squareList.squareList.length - 1), y: generateRandomInteger(0, this.squareList.squareList.length - 1) }
+            // console.log(target_cords)
+            let ball = new Ball(target_cords.x + "_" + target_cords.y, this.size - 10)
+            let isAvailableObs = this.squareList.elementFinder(this.squareList.squareList, target_cords)?.setBall(ball)
+            console.log(isAvailableObs)
+            while (!isAvailableObs) {
+                target_cords = { x: generateRandomInteger(0, this.squareList.squareList.length - 1), y: generateRandomInteger(0, this.squareList.squareList.length - 1) }
+                isAvailableObs = this.squareList.elementFinder(this.squareList.squareList, target_cords)?.setBall(ball)
+                console.log("Losowoanie ponowne")
+            }
+
+            this.balls.push(ball)
+
+        }
+    }
+
+    refreshBalls() {
+        this.balls.forEach(element => {
+            document.getElementById(element.id).appendChild(element.create())
+            this.squareList.squareList[parseInt((element.id).slice(0, 1))][parseInt((element.id).slice(2, 3))].isBall = true;
+        });
+    }
+
+}
+
+
 class Square {
-    id: number;
+    id: string;
     size: number;
     isChecked: boolean = false;
-    isObstacle: boolean = false;
+    isBall: boolean = false;
     text: string;
     cords: cordsx;
-    constructor(theID: number, theSize: number, theText: number, theCordX: number, theCordY: number) {
-        this.id = theID;
+
+    constructor(theSize: number, theText: number, theCordX: number, theCordY: number) {
+
         this.size = theSize;
         this.text = (theText).toString();
         this.cords = { x: theCordX, y: theCordY }
+        this.id = (this.cords.x + "_" + this.cords.y).toString();
 
+    }
+
+    setText(text: string) {
+        this.text = text
+        document.getElementById(this.id).innerText = this.text
+        this.isChecked = true
 
     }
 
     create(): HTMLDivElement {
         let element = document.createElement("div")
-        element.id = (this.id).toString()
+        // element.id = (this.id).toString()
+        element.id = this.id
         element.classList.add("point")
         element.innerText = (this.text).toString()
         element.setAttribute('style', `width: ${this.size}px; height: ${this.size}px; border:1px solid black`);
         return element;
     }
 
+    checkIsClickable() {
+        if (!this.isChecked && !this.isBall && this.text != "START")
+            return true
+        return false
+    }
+
     checkIsAvailable() {
-        let element = document.getElementById(this.id.toString())
+        //let element = document.getElementById(this.id.toString())
+        let element = document.getElementById(this.id)
         if (element != (undefined || null))
             return element
         else
             return null
     }
-    setObstacle() {
+
+    setBall(ball: Ball) {
         let obstacleElem = this.checkIsAvailable()
-        if (obstacleElem && !this.isObstacle && !this.isChecked) {
-            this.isObstacle = true
+        if (obstacleElem && !this.isBall && !this.isChecked) {
+            this.isBall = true
             this.text = "X"
-            obstacleElem.innerHTML = this.text
+            obstacleElem.appendChild(ball.create())
             return true
         }
         return false
@@ -48,12 +135,17 @@ class Square {
 
     setAsStartEnd(name: string) {
         let obstacleElem = this.checkIsAvailable()
-        if (obstacleElem && !this.isObstacle && !this.isChecked) {
-            if (name == "START" || name == "END") {
-                this.text = name
+        if (obstacleElem && !this.isChecked) {
+
+            // this.text = name
+
+            if (name == "START" && this.isBall) {
+                obstacleElem!.innerHTML = ""
                 obstacleElem.style.backgroundColor = "red"
-                obstacleElem.innerHTML = this.text
-                this.isChecked = true
+                return true
+            } else if (name == "END" && !this.isBall) {
+                obstacleElem!.innerHTML = ""
+                obstacleElem.style.backgroundColor = "red"
                 return true
             }
             return false
@@ -67,7 +159,7 @@ class SquareList {
     quantity: number;
     sizeOfSquare: number;
     squareList: Square[][]
-    startEndObject: Number[]
+    startEndObject: number[]
 
 
     constructor(theQuantity: number, theSizeOfSquare: number) {
@@ -76,66 +168,30 @@ class SquareList {
         this.startEndObject = []
         this.squareList = []
         this.makeBoard()
-        this.addListener()
+        // this.addListener()
+    }
+
+    elementFinder = (arr: Array<any>, target: cordsx) => {
+        if (arr[target.x][target.y] != undefined) {
+            return arr[target.x][target.y];
+        } else {
+            return undefined
+        }
     }
 
     makeBoard() {
-        let count = 0;
+        document.getElementById('root')!.innerHTML = ""
         for (let i = 0; i < this.quantity; i++) {
             this.squareList[i] = []
             for (let j = 0; j < this.quantity; j++) {
-                let square = new Square(count++, this.sizeOfSquare, 0, i, j)
+                let square = new Square(this.sizeOfSquare, 0, i, j)
                 this.squareList[i][j] = square
                 document.getElementById('root')?.appendChild(square.create())
             }
-
         }
-        console.log(this.squareList)
+        // console.log(this.squareList)
     }
 
-    addListener() {
-        document.addEventListener('click', (e) => {
-            if ((e.target as Element).classList.contains('point') && this.startEndObject.length < 2) {
-                let id = parseInt((e.target as Element).id)
-                if (this.startEndObject.length < 1) {
-                    if (this.elementFinder(this.squareList, id)?.setAsStartEnd("START"))
-                        this.startEndObject.push(id)
-                }
-                else
-                    if (this.elementFinder(this.squareList, id)?.setAsStartEnd("END")) {
-                        this.startEndObject.push(id)
-                    }
-                // this.squareList.find(element => element.id == id)?.setAsStartEnd("END")
-                console.log(this.startEndObject)
-            }
-        });
-
-    }
-
-    elementFinder = (arr: Array<any>, target: number) => {
-        let element = this.squareList[0][0];
-        arr.forEach((row, i) => {
-            let elementInRow: Square | null = row.find((element: { id: number; }) => element.id == target)
-            if (elementInRow)
-                element = elementInRow
-        })
-        return element;
-    }
-
-    generateObstacles(numberOfObstacle: number) {
-        for (let i = 0; i < numberOfObstacle; i++) {
-            let id: number = generateRandomInteger(0, this.squareList.length * this.squareList[0].length)
-            console.log(id)
-            let isAvailableObs = this.elementFinder(this.squareList, id)?.setObstacle()
-            console.log(isAvailableObs)
-            while (!isAvailableObs) {
-                id = generateRandomInteger(0, this.squareList.length * this.squareList[0].length)
-                console.log(id)
-                isAvailableObs = this.elementFinder(this.squareList, id)?.setObstacle()
-                console.log("Losowoanie ponowne")
-            }
-        }
-    }
 
 }
 function generateRandomInteger(min: number, max: number) {
@@ -146,84 +202,167 @@ function generateRandomInteger(min: number, max: number) {
 class PathFinding {
 
 
-    rows: number
-    cols: number
-    grid: number[][]; // all grid points
-    unevaluatedGPoints = []
-    evaluatedGPoints = []
-    path = []
+    first_array: Array<Array<Square>>;
+    second_array: Array<Array<Array<cordsx>>>;
+    ballList: BallList;
+    array_length: number;
+    count: number;
+    first_time: boolean;
 
-    constructor(rows: number, cols: number) {
-        this.rows = rows
-        this.cols = cols
-        this.grid = []
-    }
+    constructor(array: Array<Array<Square>>, array_length: number, ballList: BallList) {
+        this.array_length = array_length;
+        this.first_array = array; //A
+        this.second_array = []; //B
+        this.ballList = ballList;
 
-    heuristic(positionA: { x: number, y: number }, positionB: { x: number, y: number }) {
-        let d1 = Math.abs(positionA.x - positionB.x);
-        let d2 = Math.abs(positionA.y - positionB.y);
-        return d1 + d2
-    }
-
-
-    pathInit() {
-        for (let i = 0; i < this.cols; i++) {
-            this.grid[i] = []
-            for (let j = 0; j < this.rows; j++) {
-                //this.grid[i][j] = new GridPoint(i, j);
+        for (let i = 0; i < 9; i++) {
+            this.second_array[i] = []
+            for (let j = 0; j < 9; j++) {
+                this.second_array[i][j] = []
             }
         }
+
+    }
+
+
+    start(numberOfStartEndElements: Square[]) {
+        let array = [{ x: numberOfStartEndElements[0].cords.x, y: numberOfStartEndElements[0].cords.y }]; // Element Startowy
+        let i = 0;
+        while (!array.some(e => e.x == numberOfStartEndElements[1].cords.x && e.y == numberOfStartEndElements[1].cords.y)) {
+            if (array.length < 1 && i > 5) // prowizoryczne zabezpieczenie
+                break;
+            let array2: Array<cordsx> = [];
+            array.forEach(element => {
+                array2 = array2.concat(this.fill_adjacent_items(element, i));
+            });
+            array = array2
+            i++;
+        }
+
+        this.changeBallPlace(numberOfStartEndElements)
+
+
+    }
+
+    changeBallPlace(numberOfStartEndElements: Square[]) {
+        let ball = this.ballList.balls.find(e => e.id == (numberOfStartEndElements[0].cords.x + "_" + numberOfStartEndElements[0].cords.y))
+        this.ballList.balls[this.ballList.balls.indexOf(ball)].id = numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y
+
+
+        this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].forEach(element => {
+            document.getElementById(`${element.x + "_" + element.y}`).style.backgroundColor = "green"
+        });
+
+        document.getElementById(numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y).appendChild(ball.create())
+        this.clear()
+
+    }
+
+    fill_adjacent_items(pos: cordsx, count: number) {
+
+        console.log("Szkanie")
+        let res: Array<cordsx> = [];
+        let arr = [
+            { x: pos.x, y: (pos.y + 1) },
+            { x: pos.x, y: (pos.y - 1) },
+            { x: (pos.x + 1), y: pos.y },
+            { x: (pos.x - 1), y: pos.y },
+        ]
+
+        arr.forEach(element => {
+            if (element.x >= 0 && element.x < this.array_length && element.y >= 0 && element.y < this.array_length) {
+                let square_element: Square = this.first_array[element.x][element.y]
+                if (square_element.checkIsClickable()) {
+                    square_element.setText(count.toString())
+                    square_element.isChecked = true;
+                    this.second_array[element.x][element.y] = this.second_array[pos.x][pos.y].concat(pos)
+                    res.push(square_element.cords)
+                }
+            }
+        });
+
+        return res;
     }
 
 
-    pathFind() {
+    clear() {
+        for (let i = 0; i < 9; i++) {
+            this.second_array[i] = []
+            for (let j = 0; j < 9; j++) {
+                this.second_array[i][j] = []
+            }
+        }
 
     }
+
 }
 
 
-class GridPoint extends PathFinding {
+class Game {
 
-    x: number;
-    y: number;
-    finalCost: number; //total cost
-    toGridPointCost: number; // from start to current grid point
-    heuristicCost: number;
-    // neighbors: []; //poprawy typy
-    parent = undefined; //popraw typy
+    squareListClass: SquareList
+    pathFinding: PathFinding
+    ballList: BallList
+    startEndObject: Square[]
 
-    constructor(cords: { x: number, y: number }) {
-        super(5, 5)
-        this.x = cords.x
-        this.y = cords.y
-        this.finalCost = 0
-        this.toGridPointCost = 0
-        this.heuristicCost = 0
-        //  this.neighbors = any[]
-        this.parent = undefined
+    constructor() {
+        this.squareListClass = new SquareList(9, 50)
+        this.ballList = new BallList(this.squareListClass)
+        this.pathFinding = new PathFinding(this.squareListClass.squareList, 9, this.ballList)
+        this.startEndObject = []
+        this.addListener()
+        this.init()
     }
 
-    updateNeighbors() {
-        let i = this.x
-        let j = this.y
-        if (i < this.cols - 1) {
-            // this.neighbors.push(this.grid[i + 1][j]);
-        }
-        if (i > 0) {
-            //  this.neighbors.push(this.grid[i - 1][j]);
-        }
-        if (j < this.rows - 1) {
-            //  this.neighbors.push(this.grid[i][j + 1]);
-        }
-        if (j > 0) {
-            //  this.neighbors.push(grid[i][j - 1]);
+    init() {
+        this.ballList.generateBalls(10)
+
+        console.log(this.ballList.balls)
+    }
+
+    pathFindingStart() {
+        if (this.startEndObject.length == 2) {
+            this.pathFinding.start(this.startEndObject)
+            //this.startEndObject = [] //TO BEDZIEMY DOPIERO CZYSCIC PO PATHFINDINGU
         }
     }
 
 
+    addListener() {
+        document.addEventListener("click", (e) => {
+            console.log(e.target)
+            if ((e.target as Element).classList.contains('ball') || (e.target as Element).classList.contains('point') && this.startEndObject.length < 2) {
+                console.log(e.target)
+                //let id = parseInt((e.target as Element).id)
+                let target_cords: cordsx = { x: parseInt(((e.target as Element).id).slice(0, 1)), y: parseInt(((e.target as Element).id).slice(2, 3)) }
+                console.log(target_cords)
+                // let target_element = this.squareListClass.elementFinder(this.squareListClass.squareList, target_cords)
+                let target_element = this.squareListClass.elementFinder(this.squareListClass.squareList, target_cords)
+                console.log(target_element)
+                if (this.startEndObject.length < 1) {
+                    if (target_element?.setAsStartEnd("START"))
+                        this.startEndObject.push(target_element)
+                }
+                else if (this.startEndObject.length < 2) {
+                    if (target_element?.setAsStartEnd("END")) {
+                        this.startEndObject.push(target_element)
+                        this.pathFindingStart()
+                    }
+                } else {
+                    this.refresh()
+                }
 
+                console.log(this.startEndObject)
+            }
+        });
+    }
+
+    refresh() {
+        this.squareListClass.makeBoard()
+        this.ballList.refreshBalls()
+        this.startEndObject = []
+    }
 }
 
-let x2 = new SquareList(5, 50)
-x2.generateObstacles(12)
+let g = new Game()
 

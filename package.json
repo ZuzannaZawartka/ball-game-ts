@@ -5,7 +5,9 @@
   "main": "script.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc script.ts -w --lib ES7,DOM"
+    "start": "tsc script.ts -w --lib ES7,DOM",
+    "dev": "webpack --mode development",
+    "prod": "webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -16,5 +18,11 @@
   "bugs": {
     "url": "https://github.com/ZuzannaZawartka/ball-game-ts/issues"
   },
-  "homepage": "https://github.com/ZuzannaZawartka/ball-game-ts#readme"
+  "homepage": "https://github.com/ZuzannaZawartka/ball-game-ts#readme",
+  "devDependencies": {
+    "ts-loader": "^9.4.1",
+    "typescript": "^4.8.4",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
 }
