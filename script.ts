@@ -8,11 +8,17 @@ class Ball {
     id: string;
     size: number;
     color: string;
+    sizes: Array<number>
+    cords: cordsx;
+    element: HTMLDivElement;
 
-    constructor(theID: string, theSize: number) {
-        this.id = theID;
+    constructor(theSize: number, cords: cordsx) {
+        // this.id = theID;
+        this.id = cords.x + "_" + cords.y + "_ball"
         this.size = theSize;
+        this.cords = cords;
         this.color = this.getRandomColor()
+        this.element = this.create()
         this.create()
     }
 
@@ -30,6 +36,12 @@ class Ball {
         return element;
     }
 
+
+    setSize(size: number) {
+        document.getElementById(`${this.id}`).style.width = size + "px"
+        document.getElementById(`${this.id}`).style.height = size + "px"
+    }
+
 }
 
 
@@ -43,15 +55,18 @@ class BallList {
         this.squareList = squareList
         this.balls = []
         this.size = 40;
+        //  this.addListener()
     }
 
     generateBalls(numberOfObstacle: number) {
         for (let i = 0; i < numberOfObstacle; i++) {
             let target_cords: cordsx = { x: generateRandomInteger(0, this.squareList.squareList.length - 1), y: generateRandomInteger(0, this.squareList.squareList.length - 1) }
             // console.log(target_cords)
-            let ball = new Ball(target_cords.x + "_" + target_cords.y, this.size - 10)
+            let ball = new Ball(this.size - 10, { x: target_cords.x, y: target_cords.y })
+            //   this.addListener(ball)
             let isAvailableObs = this.squareList.elementFinder(this.squareList.squareList, target_cords)?.setBall(ball)
             console.log(isAvailableObs)
+
             while (!isAvailableObs) {
                 target_cords = { x: generateRandomInteger(0, this.squareList.squareList.length - 1), y: generateRandomInteger(0, this.squareList.squareList.length - 1) }
                 isAvailableObs = this.squareList.elementFinder(this.squareList.squareList, target_cords)?.setBall(ball)
@@ -63,12 +78,6 @@ class BallList {
         }
     }
 
-    refreshBalls() {
-        this.balls.forEach(element => {
-            document.getElementById(element.id).appendChild(element.create())
-            this.squareList.squareList[parseInt((element.id).slice(0, 1))][parseInt((element.id).slice(2, 3))].isBall = true;
-        });
-    }
 
 }
 
@@ -77,24 +86,23 @@ class Square {
     id: string;
     size: number;
     isChecked: boolean = false;
-    isBall: boolean = false;
     text: string;
     cords: cordsx;
+    ballHere: Array<Ball>
 
-    constructor(theSize: number, theText: number, theCordX: number, theCordY: number) {
+    constructor(theSize: number, theText: number, theCordX: number, theCordY: number, ballHere?: Array<Ball>) {
 
         this.size = theSize;
         this.text = (theText).toString();
         this.cords = { x: theCordX, y: theCordY }
         this.id = (this.cords.x + "_" + this.cords.y).toString();
+        this.ballHere = ballHere || []
 
     }
 
     setText(text: string) {
         this.text = text
         document.getElementById(this.id).innerText = this.text
-        this.isChecked = true
-
     }
 
     create(): HTMLDivElement {
@@ -102,13 +110,13 @@ class Square {
         // element.id = (this.id).toString()
         element.id = this.id
         element.classList.add("point")
-        element.innerText = (this.text).toString()
+        // element.innerText = (this.text).toString()
         element.setAttribute('style', `width: ${this.size}px; height: ${this.size}px; border:1px solid black`);
         return element;
     }
 
     checkIsClickable() {
-        if (!this.isChecked && !this.isBall && this.text != "START")
+        if (!this.isChecked && !this.ballHere.length) //  if (!this.isChecked && !this.isBall && this.text != "START")
             return true
         return false
     }
@@ -122,34 +130,69 @@ class Square {
             return null
     }
 
-    setBall(ball: Ball) {
+    setBall(ball?: Ball) { // popraw
         let obstacleElem = this.checkIsAvailable()
-        if (obstacleElem && !this.isBall && !this.isChecked) {
-            this.isBall = true
-            this.text = "X"
-            obstacleElem.appendChild(ball.create())
-            return true
+        console.log(ball)
+        if (ball != undefined) { //jesli nie podamy argumentu nadpisujemy balla z tablicy
+
+            console.log("HALO PODANO KULKI")
+            if (obstacleElem && !this.ballHere.length && !this.isChecked) {
+                // this.isBall = true
+                this.ballHere = []
+                this.ballHere.push(ball)
+                obstacleElem.appendChild(ball.create())
+                return true
+            }
+            // obstacleElem.appendChild(ball.create())
+        } else {
+
+            if (this.ballHere.length)
+                document.getElementById(`${this.id}`).appendChild(this.ballHere[0].element)
+
         }
         return false
+
     }
 
     setAsStartEnd(name: string) {
         let obstacleElem = this.checkIsAvailable()
+        console.log("cos " + this.isChecked)
         if (obstacleElem && !this.isChecked) {
-
+            console.log("WCHODZI W IFA")
             // this.text = name
 
-            if (name == "START" && this.isBall) {
-                obstacleElem!.innerHTML = ""
-                obstacleElem.style.backgroundColor = "red"
+            if (name == "START" && this.ballHere.length) {
+                this.ballHere[0].setSize(40)
+                //obstacleElem!.innerHTML = ""
+                // obstacleElem.style.backgroundColor = "red"
                 return true
-            } else if (name == "END" && !this.isBall) {
-                obstacleElem!.innerHTML = ""
-                obstacleElem.style.backgroundColor = "red"
+            } else if (name == "END" && !this.ballHere.length) {
+
+                //obstacleElem!.innerHTML = ""
+                //obstacleElem.style.backgroundColor = "red"
                 return true
             }
             return false
+        } else {
+            console.log("NIE - -- WCHODZI W IFA")
         }
+    }
+
+
+    deleteBall() {
+        let obstacleElem = this.checkIsAvailable()
+        if (obstacleElem && this.ballHere.length) {
+            this.ballHere[0].setSize(30)
+            this.ballHere = []
+            document.getElementById(`${this.id}`).innerHTML = ""
+        } else {
+            return false
+        }
+    }
+
+
+    setColor(color: string) {
+        document.getElementById(`${this.id}`).style.backgroundColor = color
     }
 }
 
@@ -160,13 +203,16 @@ class SquareList {
     sizeOfSquare: number;
     squareList: Square[][]
     startEndObject: number[]
-
+    coloredPath: Square[]
+    isActiveMove: boolean;
 
     constructor(theQuantity: number, theSizeOfSquare: number) {
         this.quantity = theQuantity;
         this.sizeOfSquare = theSizeOfSquare;
         this.startEndObject = []
         this.squareList = []
+        this.coloredPath = []
+        this.isActiveMove = true;
         this.makeBoard()
         // this.addListener()
     }
@@ -192,7 +238,45 @@ class SquareList {
         // console.log(this.squareList)
     }
 
+    colorPath(pathArray: Array<Array<Array<cordsx>>>, numberOfStartEndElements: Square[]) {
+        pathArray[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].forEach(element => {
+            console.log(element)
+            this.coloredPath.push(this.squareList[element.x][element.y])
+            this.squareList[element.x][element.y].setColor("green")
+            // document.getElementById(((element.x + "_" + element.y).toString())).style.backgroundColor = this.color
+        });
+    }
 
+    clearPath() {
+        if (this.coloredPath.length)
+            this.coloredPath.forEach(square => {
+                square.setColor("white")
+            });
+        this.coloredPath = []
+    }
+
+
+    refreshBoard() {
+        // document.getElementById('root')!.innerHTML = ""
+        for (let i = 0; i < this.quantity; i++) {
+            for (let j = 0; j < this.quantity; j++) {
+                ////!-! Przeniesc do jakiejs funkcji w square
+                this.squareList[i][j].isChecked = false
+                this.squareList[i][j].setText("")
+                // document.getElementById(`${this.squareList[i][j].id}`).style.backgroundColor = "white"
+                if (this.squareList[i][j].ballHere.length > 0) {
+                    console.log(this.squareList[i][j].ballHere)
+                    document.getElementById(`${this.squareList[i][j].id}`).appendChild(this.squareList[i][j].ballHere[0].create())
+                }
+
+            }
+        }
+        console.log(this.squareList)
+        setTimeout(() => {
+            this.clearPath()
+            this.isActiveMove = true;
+        }, 2000)
+    }
 }
 function generateRandomInteger(min: number, max: number) {
     return Math.floor(min + Math.random() * (max - min + 1))
@@ -205,15 +289,19 @@ class PathFinding {
     first_array: Array<Array<Square>>;
     second_array: Array<Array<Array<cordsx>>>;
     ballList: BallList;
+    squareList: SquareList;
     array_length: number;
     count: number;
     first_time: boolean;
 
-    constructor(array: Array<Array<Square>>, array_length: number, ballList: BallList) {
+
+    constructor(array: Array<Array<Square>>, array_length: number, ballList: BallList, squareList: SquareList) {
         this.array_length = array_length;
         this.first_array = array; //A
         this.second_array = []; //B
         this.ballList = ballList;
+        this.squareList = squareList;
+
 
         for (let i = 0; i < 9; i++) {
             this.second_array[i] = []
@@ -244,23 +332,44 @@ class PathFinding {
 
     }
 
+    // showPath(numberOfStartEndElements: Square[]) {
+    //     this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].forEach(element => {
+    //         console.log(element)
+    //         document.getElementById(((element.x + "_" + element.y).toString())).style.backgroundColor = this.color
+    //     });
+    // }
+
+
     changeBallPlace(numberOfStartEndElements: Square[]) {
-        let ball = this.ballList.balls.find(e => e.id == (numberOfStartEndElements[0].cords.x + "_" + numberOfStartEndElements[0].cords.y))
-        this.ballList.balls[this.ballList.balls.indexOf(ball)].id = numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y
+        let ball = this.ballList.balls.find(e => e.id == (numberOfStartEndElements[0].cords.x + "_" + numberOfStartEndElements[0].cords.y + "_ball"))
+
+        this.ballList.balls[this.ballList.balls.indexOf(ball)].id = numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y + "_ball" //change ball id
+        //!!!!!NIE WIEM CZY TO WYZEJ JEST POTRZEBNE
 
 
-        this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].forEach(element => {
-            document.getElementById(`${element.x + "_" + element.y}`).style.backgroundColor = "green"
-        });
+        ball.id = numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y + "_ball"
+
+
+        // this.showPath(numberOfStartEndElements)
+
+        this.squareList.colorPath(this.second_array, numberOfStartEndElements)
+
+        this.first_array[numberOfStartEndElements[0].cords.x][numberOfStartEndElements[0].cords.y].ballHere = []  // clear array of ball in this place
+        this.first_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].ballHere.push(ball) // push ball to other array
+
+        console.log("NUMER ELEMENTU -------")
+        console.log(numberOfStartEndElements[1]);
+        console.log(this.first_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].ballHere);
+
 
         document.getElementById(numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y).appendChild(ball.create())
         this.clear()
-
     }
+
+
 
     fill_adjacent_items(pos: cordsx, count: number) {
 
-        console.log("Szkanie")
         let res: Array<cordsx> = [];
         let arr = [
             { x: pos.x, y: (pos.y + 1) },
@@ -308,20 +417,21 @@ class Game {
     constructor() {
         this.squareListClass = new SquareList(9, 50)
         this.ballList = new BallList(this.squareListClass)
-        this.pathFinding = new PathFinding(this.squareListClass.squareList, 9, this.ballList)
+        this.pathFinding = new PathFinding(this.squareListClass.squareList, 9, this.ballList, this.squareListClass)
         this.startEndObject = []
         this.addListener()
         this.init()
     }
 
     init() {
-        this.ballList.generateBalls(10)
+        this.ballList.generateBalls(20)
 
         console.log(this.ballList.balls)
     }
 
     pathFindingStart() {
         if (this.startEndObject.length == 2) {
+            this.squareListClass.isActiveMove = false;
             this.pathFinding.start(this.startEndObject)
             //this.startEndObject = [] //TO BEDZIEMY DOPIERO CZYSCIC PO PATHFINDINGU
         }
@@ -329,37 +439,49 @@ class Game {
 
 
     addListener() {
-        document.addEventListener("click", (e) => {
-            console.log(e.target)
-            if ((e.target as Element).classList.contains('ball') || (e.target as Element).classList.contains('point') && this.startEndObject.length < 2) {
-                console.log(e.target)
-                //let id = parseInt((e.target as Element).id)
-                let target_cords: cordsx = { x: parseInt(((e.target as Element).id).slice(0, 1)), y: parseInt(((e.target as Element).id).slice(2, 3)) }
-                console.log(target_cords)
-                // let target_element = this.squareListClass.elementFinder(this.squareListClass.squareList, target_cords)
-                let target_element = this.squareListClass.elementFinder(this.squareListClass.squareList, target_cords)
-                console.log(target_element)
-                if (this.startEndObject.length < 1) {
-                    if (target_element?.setAsStartEnd("START"))
-                        this.startEndObject.push(target_element)
-                }
-                else if (this.startEndObject.length < 2) {
-                    if (target_element?.setAsStartEnd("END")) {
-                        this.startEndObject.push(target_element)
-                        this.pathFindingStart()
-                    }
-                } else {
-                    this.refresh()
-                }
 
-                console.log(this.startEndObject)
-            }
+        document.addEventListener("click", (e) => {
+
+            console.log("RUCH : ")
+            console.log(this.squareListClass.isActiveMove)
+            if (this.squareListClass.isActiveMove) // sprawdzamy czy nie mamy sciezki na tablicy
+                if ((e.target as Element).classList.contains('ball') || (e.target as Element).classList.contains('point') && this.startEndObject.length < 2) {
+                    let target_cords: cordsx = { x: parseInt(((e.target as Element).id).slice(0, 1)), y: parseInt(((e.target as Element).id).slice(2, 3)) }
+                    let target_element = this.squareListClass.elementFinder(this.squareListClass.squareList, target_cords)
+
+                    if (target_element.ballHere.length) { //Sprawdzamy czy jest w danym miejscy kulka
+                        if (this.startEndObject.length < 1) { // jesli nie mamy elementow w tablicy
+                            if (target_element?.setAsStartEnd("START")) // jesli element mozemy ustawic jako startowy pushujemy do tablicy
+                                this.startEndObject.push(target_element)
+
+                        } else {
+                            if (this.startEndObject.length < 2 && target_element?.setAsStartEnd("START")) { // jesli mamy element w tablicy a mozemy wybrany element ustawic jako startowy
+                                this.startEndObject[0].ballHere[0].setSize(30)
+                                if (this.startEndObject[0].ballHere[0] == target_element.ballHere[0])  // jesli ta sama kulka to odznaczamy wybor
+                                    this.startEndObject = [] // zerujemy liste i zmniejszamy kulke
+                                else
+                                    // ustawiamy poprzednia kulke na mniejsza
+                                    this.startEndObject[0] = target_element; // zastepujemy popprzednia nowa
+                            }
+                        }
+                    } else {
+                        if (this.startEndObject.length == 1) {
+                            if (target_element?.setAsStartEnd("END")) {
+                                this.startEndObject.push(target_element)
+                                this.startEndObject[0].deleteBall()
+                                this.pathFindingStart()
+                                this.refresh()
+                            }
+                        }
+                    }
+                }
         });
     }
 
     refresh() {
-        this.squareListClass.makeBoard()
-        this.ballList.refreshBalls()
+        //  this.squareListClass.makeBoard()
+        this.squareListClass.refreshBoard()
+
         this.startEndObject = []
     }
 }
