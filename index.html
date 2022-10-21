@@ -2,49 +2,49 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script type="module" src="/src/Game.ts"></script>
+  <style>
+    #root {
+      display: grid;
+      grid-template-columns: repeat(9, 51px);
+      justify-content: center;
+    }
 
-    <style>
-        #root {
-            display: grid;
-            grid-template-columns: repeat(9, 51px);
-            justify-content: center;
-        }
+    .point {
+      display: flex;
+      align-items: center;
+    }
 
-        .point {
-            display: flex;
-            align-items: center;
-        }
+    .ball {
+      border-radius: 100%;
+      text-align: center;
 
-        .ball {
-            border-radius: 100%;
-            text-align: center;
+      padding: 0;
 
-            padding: 0;
+    }
 
-        }
+    #box {
+      justify-content: center;
+      align-items: center;
+    }
 
-        #box {
-            justify-content: center;
-            align-items: center;
-        }
-
-        h1 {
-            text-align: center;
-        }
-    </style>
+    h1 {
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
-    <div id="box">
-        <h1>Ball Game</h1>
-        <div id="root"></div>
-    </div>
+  <div id="box">
+    <h1>Ball Game</h1>
+    <div id="root"></div>
+  </div>
 
-    <script src="/script.js"></script>
+
 </body>
 
 </html>
