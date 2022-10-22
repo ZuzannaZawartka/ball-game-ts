@@ -8,6 +8,10 @@
   <title>Document</title>
   <script type="module" src="/src/Game.ts"></script>
   <style>
+    body {
+      background-color: rgb(42, 42, 42);
+    }
+
     #root {
       display: grid;
       grid-template-columns: repeat(9, 51px);
@@ -17,33 +21,67 @@
     .point {
       display: flex;
       align-items: center;
+      border: 2px ridge rgb(88, 88, 88);
+      justify-content: center;
+      align-items: center;
     }
 
     .ball {
       border-radius: 100%;
-      text-align: center;
 
+      text-align: center;
       padding: 0;
+      border: 4px double white;
 
     }
 
     #box {
       justify-content: center;
       align-items: center;
+      flex: 1;
     }
 
     h1 {
       text-align: center;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    #left-site-box {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .queue {
+      margin: 10px;
+    }
+
+    #left-site-box-container {
+      text-align: center;
+    }
+
+    #container {
+      display: flex;
+      flex-direction: row;
     }
   </style>
 </head>
 
 <body>
-  <div id="box">
-    <h1>Ball Game</h1>
-    <div id="root"></div>
-  </div>
+  <div id="container">
 
+    <div id="left-site-box-container">
+      <p>Next</p>
+      <div id="left-site-box"></div>
+
+    </div>
+
+
+
+    <div id="box">
+      <h1>Ball Game</h1>
+      <div id="root"></div>
+    </div>
+  </div>
 
 </body>
 

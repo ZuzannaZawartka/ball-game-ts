@@ -1,5 +1,6 @@
 import Ball from "./Ball";
 import SquareList from "./SquareList";
+import { cordsx } from "./interfaces";
 
 class Square {
     id: string;
@@ -30,7 +31,7 @@ class Square {
         element.id = this.id
         element.classList.add("point")
         // element.innerText = (this.text).toString()
-        element.setAttribute('style', `width: ${this.size}px; height: ${this.size}px; border:1px solid black`);
+        element.setAttribute('style', `width: ${this.size}px; height: ${this.size}px`);
         return element;
     }
 

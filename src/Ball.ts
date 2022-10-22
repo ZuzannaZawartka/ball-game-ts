@@ -1,8 +1,10 @@
+import { cordsx } from "./interfaces";
+
 class Ball {
 
     id: string;
     size: number;
-    color: string;
+    readonly color: string;
     cords: cordsx;
     element: HTMLDivElement;
 
@@ -18,7 +20,7 @@ class Ball {
 
 
     getRandomColor() {
-        let colors = ["#8c10eb", "#10ceeb", "#06a144", "#deca16", "#d9840d", "#9c2414", "#95149c"]
+        let colors = ["#8c10eb", "#10ceeb", "#06a144", "#deca16", "#d9840d", "#9c2414", "#95149c"] //,  "#10ceeb", "#06a144", "#deca16", "#d9840d", "#9c2414", "#95149c"
         return colors[Math.floor(Math.random() * (colors.length - 1))];
     }
 
@@ -26,7 +28,7 @@ class Ball {
         let element = document.createElement("div")
         element.id = this.id
         element.classList.add("ball")
-        element.setAttribute('style', `width: ${this.size}px; height: ${this.size}px; border:1px solid black;background-color:${this.color}`);
+        element.setAttribute('style', `width: ${this.size}px; height: ${this.size}px;background-color:${this.color}`);
         this.element = element;
         return element;
     }

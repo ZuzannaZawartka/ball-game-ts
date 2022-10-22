@@ -2,6 +2,7 @@ import BallList from "./BallList";
 import Square from "./Square";
 import SquareList from "./SquareList";
 import Game from "./Game";
+import { cordsx } from "./interfaces";
 
 class PathFinding {
 
@@ -28,8 +29,8 @@ class PathFinding {
 
     }
 
+    arraySearching(numberOfStartEndElements: Square[]) {
 
-    start(numberOfStartEndElements: Square[]) {
         let array = [{ x: numberOfStartEndElements[0].cords.x, y: numberOfStartEndElements[0].cords.y }]; // Element Startowy
         let i = 0;
         while (!array.some(e => e.x == numberOfStartEndElements[1].cords.x && e.y == numberOfStartEndElements[1].cords.y)) {
@@ -42,7 +43,12 @@ class PathFinding {
             array = array2
             i++;
         }
+    }
 
+
+    start(numberOfStartEndElements: Square[]) {
+
+        this.arraySearching(numberOfStartEndElements)
 
         if (this.changeBallPlace(numberOfStartEndElements) == false)
             return false
@@ -50,12 +56,33 @@ class PathFinding {
 
     }
 
+    startHover(numberOfStartEndElements: Square[]) {
+
+        this.arraySearching(numberOfStartEndElements)
+        //console.table(this.second_array)
+
+
+        console.log(this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y])
+
+
+
+        if (this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].length >= 1) {
+            this.squareList.clearPath()
+            this.squareList.colorPath(this.second_array, numberOfStartEndElements)
+        }
+
+        this.clear()
+
+    }
+
     changeBallPlace(numberOfStartEndElements: Square[]) {
 
         if (this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].length) {
+
             Game.startEndObject[0].deleteBall()
 
             let ball = BallList.balls.find(e => e.id == (numberOfStartEndElements[0].cords.x + "_" + numberOfStartEndElements[0].cords.y + "_ball"))
+
             if (ball) {
                 BallList.deleteBall(ball)
                 ball.recreate(numberOfStartEndElements[1].cords)
@@ -67,6 +94,10 @@ class PathFinding {
                 this.first_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].ballHere.push(ball) // push ball to other array
 
                 document.getElementById(numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y)!.appendChild(ball.create())
+
+                //HERE WILL BE CHECKIG POINT
+                this.squareList.checkBallAround(ball)
+
                 this.clear()
                 return true
             }
