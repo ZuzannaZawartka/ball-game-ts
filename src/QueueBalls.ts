@@ -1,9 +1,14 @@
 import Ball from "./Ball";
+/**
+ * Class Queue cretae queue of balls 
+ */
 
 class QueueBalls {
 
-    quantity: number;
-    ballsInQueue: Array<Ball>;
+    /**quantity of balls to create */
+    public readonly quantity: number;
+    /**array of balls in queue */
+    public ballsInQueue: Array<Ball>;
 
     constructor(quantity: number) {
         this.quantity = quantity;
@@ -12,7 +17,10 @@ class QueueBalls {
     }
 
 
-    generateNewBalls() {
+    /**
+     * function generate new balls to queue
+     */
+    public generateNewBalls() {
         document.getElementById("left-site-box")!.innerHTML = ""
         this.ballsInQueue = []
         for (let i = 0; i <= this.quantity; i++) {
@@ -24,10 +32,6 @@ class QueueBalls {
             document.getElementById("left-site-box")!.appendChild(div)
         }
     }
-
-
-
-
 }
 
 export default QueueBalls

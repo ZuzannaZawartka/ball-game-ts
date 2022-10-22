@@ -6,29 +6,28 @@ import Game from "./Game";
 
 class SquareList {
 
-    quantity: number;
-    sizeOfSquare: number;
-    static squareList: Square[][]
-    startEndObject: number[]
-    coloredPath: Square[]
-    isActiveMove: boolean;
+    private quantity: number;
+    private sizeOfSquare: number;
+    public static squareList: Square[][]
+    public static wasBeaten: boolean;
+    private coloredPath: Square[]
 
-    toBeatBall: Array<Set<Ball>>;
-    diagonalArray2: Set<Ball>
-    horizontalArray: Set<Ball>
-    verticalArray: Set<Ball>
-    diagonalArray1: Set<Ball>
-    concatedArray: Set<Ball>
+
+    private toBeatBall: Array<Set<Ball>>;
+    private diagonalArray2: Set<Ball>
+    private horizontalArray: Set<Ball>
+    private verticalArray: Set<Ball>
+    private diagonalArray1: Set<Ball>
+    private concatedArray: Set<Ball>
 
 
 
     constructor(theQuantity: number, theSizeOfSquare: number) {
         this.quantity = theQuantity;
         this.sizeOfSquare = theSizeOfSquare;
-        this.isActiveMove = true;
-        this.startEndObject = []
         this.coloredPath = []
         SquareList.squareList = []
+
 
         this.horizontalArray = new Set<Ball>;
         this.verticalArray = new Set<Ball>;
@@ -47,7 +46,9 @@ class SquareList {
         this.makeBoard()
     }
 
-    static elementFinder = (arr: Array<any>, target: cordsx) => {
+
+    /** find element in array */
+    public static elementFinder = (arr: Array<any>, target: cordsx) => {
         if (arr[target.x][target.y] != undefined) {
             return arr[target.x][target.y];
         } else {
@@ -55,7 +56,9 @@ class SquareList {
         }
     }
 
-    makeBoard() {
+
+    /** creating board in html */
+    private makeBoard() {
         document.getElementById('root')!.innerHTML = ""
         for (let i = 0; i < this.quantity; i++) {
             SquareList.squareList[i] = []
@@ -67,7 +70,9 @@ class SquareList {
         }
     }
 
-    colorPath(pathArray: Array<Array<Array<cordsx>>>, numberOfStartEndElements: Square[]) {
+
+    /** color path from array */
+    public colorPath(pathArray: Array<Array<Array<cordsx>>>, numberOfStartEndElements: Square[]) {
         this.clearPath()
 
         pathArray[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].forEach(element => {
@@ -81,7 +86,9 @@ class SquareList {
         SquareList.squareList[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].setColor("wheat")
     }
 
-    clearPath() {
+
+    /** clear colored path */
+    public clearPath() {
         if (this.coloredPath.length)
             this.coloredPath.forEach(square => {
                 square.setColor("rgb(42, 42, 42)")
@@ -90,16 +97,13 @@ class SquareList {
     }
 
 
-    refreshBoard() {
-
+    /** refresh board after click and properities */
+    public refreshBoard() {
         BallList.balls = []
-        // document.getElementById('root')!.innerHTML = ""
         for (let i = 0; i < this.quantity; i++) {
             for (let j = 0; j < this.quantity; j++) {
-                ////!-! Przeniesc do jakiejs funkcji w square
                 SquareList.squareList[i][j].isChecked = false
                 SquareList.squareList[i][j].setText("")
-                // document.getElementById(`${SquareList.squareList[i][j].id}`).style.backgroundColor = "white"
                 if (SquareList.squareList[i][j].ballHere.length > 0) {
                     BallList.balls.push(SquareList.squareList[i][j].ballHere[0])
                     document.getElementById(`${SquareList.squareList[i][j].id}`)!.appendChild(SquareList.squareList[i][j].ballHere[0].create())
@@ -109,42 +113,22 @@ class SquareList {
         }
     }
 
-    refreshBoardHover() {
-
-        // document.getElementById('root')!.innerHTML = ""
+    /** refresh board after hover */
+    public refreshBoardHover() {
         for (let i = 0; i < this.quantity; i++) {
             for (let j = 0; j < this.quantity; j++) {
-                ////!-! Przeniesc do jakiejs funkcji w square
                 SquareList.squareList[i][j].isChecked = false
-
                 if (SquareList.squareList[i][j].ballHere.length > 0) {
-                    // BallList.balls.push(SquareList.squareList[i][j].ballHere[0])
-                    // document.getElementById(`${SquareList.squareList[i][j].id}`)!.appendChild(SquareList.squareList[i][j].ballHere[0].create())
                 } else {
                     SquareList.squareList[i][j].setText("")
                 }
-                // document.getElementById(`${SquareList.squareList[i][j].id}`).style.backgroundColor = "white"
-
-
             }
         }
     }
 
-    pathTimeout() {
-        setTimeout(() => {
-            this.clearPath()
-            this.turnActiveMove(true)
-        }, 100)
-    }
-
-    turnActiveMove(variable: boolean) {
-        this.isActiveMove = variable;
-    }
-
-    checkBallAround(ball: Ball) {
+    /** check if you beat ball */
+    public checkBallAround(ball: Ball, yourTurn: boolean) {
         this.clearAndSetFirstElement(ball)
-        //this.toBeatBall.clear()
-
         for (let i = -1; i < 2; i++) {
             for (let j = -1; j < 2; j++) {
                 if (!(i == 0 && j == 0) && ball.cords.x + i >= 0 && ball.cords.x + i < SquareList.squareList.length && ball.cords.y + j >= 0 && ball.cords.y + j < SquareList.squareList.length && SquareList.squareList[ball.cords.x + i][ball.cords.y + j].ballHere.length) {
@@ -157,16 +141,6 @@ class SquareList {
                 }
             }
         }
-        console.log("BEAT ARRAY")
-        console.log(this.toBeatBall)
-        console.log("BEAT horizontalArray")
-        console.log(this.horizontalArray)
-        console.log("BEAT verticalArray")
-        console.log(this.verticalArray)
-        console.log("BEAT diagonalArray1")
-        console.log(this.diagonalArray1)
-        console.log("BEAT diagonalArray2")
-        console.log(this.diagonalArray2)
 
         this.toBeatBall.forEach(array => {
             if (array.size >= 5) {
@@ -176,21 +150,23 @@ class SquareList {
             }
         });
 
-        console.log("TO JEST5 ARR")
-        console.log(this.concatedArray)
-
         if (this.concatedArray.size > 2) {
             this.deleteBalls()
+            SquareList.wasBeaten = true;
             return true
         } else {
-            //this.ballList.addBallsFromQueue()
-            return true
+            if (yourTurn == true)
+                SquareList.wasBeaten = false;
+            else
+                SquareList.wasBeaten = true;
+            return false
         }
 
 
     }
 
-    checkLine(placeWithBall: Square, cords: cordsx) {
+    /** check place and serach ball in next cords */
+    private checkLine(placeWithBall: Square, cords: cordsx) {
         if (placeWithBall.cords.x + cords.x >= 0 && placeWithBall.cords.x + cords.x < SquareList.squareList.length && placeWithBall.cords.y + cords.y >= 0 && placeWithBall.cords.y + cords.y < SquareList.squareList.length) {
             if (SquareList.squareList[placeWithBall.cords.x + cords.x][placeWithBall.cords.y + cords.y].ballHere.length) {
                 if (SquareList.squareList[placeWithBall.cords.x + cords.x][placeWithBall.cords.y + cords.y].ballHere[0].color == placeWithBall.ballHere[0].color) {
@@ -207,7 +183,8 @@ class SquareList {
 
     }
 
-    addToArrays(cords: cordsx, ball: Ball) {
+    /** if we have ball next to ball add to specific array */
+    private addToArrays(cords: cordsx, ball: Ball) {
         if (cords.x == 0) {
             this.horizontalArray.add(ball)
         } else if (cords.y == 0) {
@@ -219,7 +196,8 @@ class SquareList {
         }
     }
 
-    clearAndSetFirstElement(ball: Ball) {
+    /**clear sets and set first element */
+    private clearAndSetFirstElement(ball: Ball) {
 
         this.toBeatBall.forEach(array => {
             array.clear()
@@ -227,7 +205,8 @@ class SquareList {
         });
     }
 
-    deleteBalls() {
+    /**delete ball if 5 or more in one line */
+    private deleteBalls() {
 
         this.concatedArray.forEach(ball => {
             SquareList.squareList[ball.cords.x][ball.cords.y].deleteBall()

@@ -1,3 +1,8 @@
+/**
+ * The Game, main class which have access to other classes.
+ */
+
+
 import SquareList from "./SquareList"
 import BallList from "./BallList"
 import Square from "./Square"
@@ -5,39 +10,47 @@ import PathFinding from "./PathFinding"
 import QueueBalls from "./QueueBalls"
 import { cordsx } from "./interfaces";
 
+/**
+ * The Game, main class which have access to other classes.
+ */
 class Game {
-
-    squareListClass: SquareList
-    pathFinding: PathFinding
-    ballList: BallList
-    queueBalls: QueueBalls
-    ballChecked: boolean
-
-    static points: number;
-    static startEndObject: Square[]
+    /** access to class SquareList  */
+    private squareListClass: SquareList
+    /** access to class PathFinding  */
+    private pathFinding: PathFinding
+    /** access to class BallList  */
+    private ballList: BallList
+    /** access to class QueueBalls  */
+    private queueBalls: QueueBalls
+    /** user can't click  */
+    public static isActiveMove: boolean;
+    /** points in game */
+    public static points: number;
+    /** array of first and last element out path */
+    public static startEndObject: Square[]
 
     constructor() {
-        this.queueBalls = new QueueBalls(2)
-
+        this.queueBalls = new QueueBalls(6)
         this.squareListClass = new SquareList(9, 50)
         this.ballList = new BallList(this.queueBalls, this.squareListClass)
-        this.pathFinding = new PathFinding(SquareList.squareList, 9, this.ballList, this.squareListClass)
-        this.ballChecked = false
+        this.pathFinding = new PathFinding(SquareList.squareList, 9, this.squareListClass)
         Game.startEndObject = []
-        Game.points = 0;
-        this.addListener()
-        this.init()
+        Game.points = 0
+        Game.isActiveMove = true;
     }
 
-    init() {
+    /** initial function  */
+    public init() {
         this.ballList.generateBalls(3)
+        this.addListener()
     }
 
-    pathFindingStart() {
+
+    private pathFindingStart() {
         if (Game.startEndObject.length == 2) {
-            this.squareListClass.turnActiveMove(false) // block your turn if pathfinding working to show path
+            Game.turnActiveMove(false) // block your turn if pathfinding working to show path
             if (this.pathFinding.start(Game.startEndObject) == false) {
-                this.squareListClass.turnActiveMove(true)
+                Game.turnActiveMove(true)
                 return false
             }
             return true
@@ -45,15 +58,23 @@ class Game {
         return false
     }
 
+    /** function to change state of isActiveMove
+     * @param variable boolean which we set in variable isActiveMove
+      */
+    public static turnActiveMove(variable: boolean) {
+        Game.isActiveMove = variable;
+    }
 
-    addListener() {
+
+    /** function which set Event Listeners */
+    private addListener() {
         this.onHover()
         this.onClick()
     }
 
-    onClick() {
+    private onClick() {
         document.addEventListener("click", (e) => {
-            if (this.squareListClass.isActiveMove) // sprawdzamy czy nie mamy sciezki na tablicy
+            if (Game.isActiveMove == true) // sprawdzamy czy nie mamy sciezki na tablicy
                 if ((e.target as Element).classList.contains('ball') || (e.target as Element).classList.contains('point') && Game.startEndObject.length < 2) {
                     let target_cords: cordsx = { x: parseInt(((e.target as Element).id).slice(0, 1)), y: parseInt(((e.target as Element).id).slice(2, 3)) }
                     let target_element = SquareList.elementFinder(SquareList.squareList, target_cords)
@@ -81,11 +102,16 @@ class Game {
                         if (Game.startEndObject.length == 1) { // Rozpatrz przypadki gdzie mamy poprawny poczatek i koniec ale nie mamy sciezki
                             if (target_element?.setAsStartEnd("END")) {
                                 Game.startEndObject.push(target_element)
-
                                 if (this.pathFindingStart() != false) {
                                     this.refresh()
-                                    this.squareListClass.pathTimeout()
-                                    this.ballList.addBallsFromQueue()
+
+                                    setTimeout(() => {
+                                        this.squareListClass.clearPath()
+                                        Game.turnActiveMove(true)
+                                        if (!SquareList.wasBeaten)
+                                            this.ballList.addBallsFromQueue()
+                                    }, 100)
+
                                 } else {
                                     this.squareListClass.clearPath()
                                     this.refresh()
@@ -97,9 +123,10 @@ class Game {
         });
     }
 
-    onHover() {
+    private onHover() {
         document.addEventListener("mouseover", (e) => {
-            if (Game.startEndObject.length) {
+            if (Game.isActiveMove == true && Game.startEndObject.length) {
+                console.log("MOGE ")
                 if ((e.target as Element).classList.contains('point')) {
                     let target_cords: cordsx = { x: parseInt(((e.target as Element).id).slice(0, 1)), y: parseInt(((e.target as Element).id).slice(2, 3)) }
                     let target_element = SquareList.elementFinder(SquareList.squareList, target_cords)
@@ -111,12 +138,12 @@ class Game {
         })
     }
 
-    refresh() {
+    private refresh() {
         this.squareListClass.refreshBoard()
         Game.startEndObject = []
     }
 }
 
 let g = new Game()
-
+g.init()
 export default Game

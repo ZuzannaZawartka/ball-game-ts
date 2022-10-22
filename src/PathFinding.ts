@@ -4,20 +4,21 @@ import SquareList from "./SquareList";
 import Game from "./Game";
 import { cordsx } from "./interfaces";
 
+
 class PathFinding {
+    /** duplicate of square list */
+    private first_array: Array<Array<Square>>;
+    /** array of arrays which have cord of path elements   */
+    private second_array: Array<Array<Array<cordsx>>>;
+    /** array length of html side */
+    private squareList: SquareList;
+    /** array length of html side */
+    private array_length: number;
 
-    first_array: Array<Array<Square>>;
-    second_array: Array<Array<Array<cordsx>>>;
-    ballList: BallList;
-    squareList: SquareList;
-    array_length: number;
-    //count: number;
-
-    constructor(array: Array<Array<Square>>, array_length: number, ballList: BallList, squareList: SquareList) {
+    constructor(array: Array<Array<Square>>, array_length: number, squareList: SquareList) {
         this.array_length = array_length;
         this.first_array = array; //A
         this.second_array = []; //B
-        this.ballList = ballList;
         this.squareList = squareList;
 
         for (let i = 0; i < 9; i++) {
@@ -29,7 +30,11 @@ class PathFinding {
 
     }
 
-    arraySearching(numberOfStartEndElements: Square[]) {
+
+    /** function which create array of arrays 
+     * arrays[cord.x][cord.y] have cords of path steps if path is avaiable
+    */
+    private arraySearching(numberOfStartEndElements: Square[]) {
 
         let array = [{ x: numberOfStartEndElements[0].cords.x, y: numberOfStartEndElements[0].cords.y }]; // Element Startowy
         let i = 0;
@@ -46,7 +51,8 @@ class PathFinding {
     }
 
 
-    start(numberOfStartEndElements: Square[]) {
+    /**function which start pathFinding to click */
+    public start(numberOfStartEndElements: Square[]) {
 
         this.arraySearching(numberOfStartEndElements)
 
@@ -56,26 +62,22 @@ class PathFinding {
 
     }
 
-    startHover(numberOfStartEndElements: Square[]) {
-
+    /**function which start pathFinding to hover */
+    public startHover(numberOfStartEndElements: Square[]) {
         this.arraySearching(numberOfStartEndElements)
-        //console.table(this.second_array)
-
-
-        console.log(this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y])
-
-
 
         if (this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].length >= 1) {
             this.squareList.clearPath()
             this.squareList.colorPath(this.second_array, numberOfStartEndElements)
         }
-
-        this.clear()
-
     }
 
-    changeBallPlace(numberOfStartEndElements: Square[]) {
+
+    /**changing ball place, id
+     * refreshing list of balls
+     * checking if we didnt beat balls
+     *  */
+    private changeBallPlace(numberOfStartEndElements: Square[]) {
 
         if (this.second_array[numberOfStartEndElements[1].cords.x][numberOfStartEndElements[1].cords.y].length) {
 
@@ -95,8 +97,7 @@ class PathFinding {
 
                 document.getElementById(numberOfStartEndElements[1].cords.x + "_" + numberOfStartEndElements[1].cords.y)!.appendChild(ball.create())
 
-                //HERE WILL BE CHECKIG POINT
-                this.squareList.checkBallAround(ball)
+                this.squareList.checkBallAround(ball, true)
 
                 this.clear()
                 return true
@@ -109,7 +110,8 @@ class PathFinding {
     }
 
 
-    fill_adjacent_items(pos: cordsx, count: number) {
+    /**checking four position around place to search path */
+    private fill_adjacent_items(pos: cordsx, count: number) {
 
         let res: Array<cordsx> = [];
         let arr = [
@@ -135,7 +137,8 @@ class PathFinding {
     }
 
 
-    clear() {
+    /**clearing array of arrays */
+    private clear() {
         for (let i = 0; i < 9; i++) {
             this.second_array[i] = []
             for (let j = 0; j < 9; j++) {

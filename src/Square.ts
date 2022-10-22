@@ -3,12 +3,12 @@ import SquareList from "./SquareList";
 import { cordsx } from "./interfaces";
 
 class Square {
-    id: string;
-    size: number;
-    isChecked: boolean = false;
-    text: string;
-    cords: cordsx;
-    ballHere: Array<Ball>
+    public id: string;
+    private readonly size: number;
+    public isChecked: boolean = false;
+    private text: string;
+    public cords: cordsx;
+    public ballHere: Array<Ball>
 
     constructor(theSize: number, theText: number, theCordX: number, theCordY: number, ballHere?: Array<Ball>) {
 
@@ -20,12 +20,15 @@ class Square {
 
     }
 
-    setText(text: string) {
+    /**set text in div of square */
+    public setText(text: string) {
         this.text = text
         document.getElementById(this.id)!.innerText = this.text
     }
 
-    create(): HTMLDivElement {
+
+    /**create html element with specific attribiute */
+    public create(): HTMLDivElement {
         let element = document.createElement("div")
         // element.id = (this.id).toString()
         element.id = this.id
@@ -35,13 +38,15 @@ class Square {
         return element;
     }
 
-    checkIsClickable() {
+    /**check if div is clickable */
+    public checkIsClickable() {
         if (!this.isChecked && !this.ballHere.length) //  if (!this.isChecked && !this.isBall && this.text != "START")
             return true
         return false
     }
 
-    checkIsAvailable() {
+    /**check if div is avaiable */
+    public checkIsAvailable() {
         //let element = document.getElementById(this.id.toString())
         let element = document.getElementById(this.id)
         if (element != (undefined || null))
@@ -50,7 +55,8 @@ class Square {
             return null
     }
 
-    checkSurroundings(position: cordsx) {
+    /**check surroundings of position, if ball is blocked dont allow to click it */
+    public checkSurroundings(position: cordsx) {
         let positions = [
             { x: position.x, y: (position.y + 1) },
             { x: position.x, y: (position.y - 1) },
@@ -80,7 +86,8 @@ class Square {
 
     }
 
-    setBall(ball?: Ball) { // popraw
+    /**set ball in this square */
+    public setBall(ball?: Ball) { // popraw
         let obstacleElem = this.checkIsAvailable()
         if (ball != undefined) { //jesli nie podamy argumentu nadpisujemy balla z tablicy
             if (obstacleElem && !this.ballHere.length && !this.isChecked) {
@@ -98,7 +105,8 @@ class Square {
 
     }
 
-    setAsStartEnd(name: string) {
+    /**set as START or END of pathfinding this area  */
+    public setAsStartEnd(name: string) {
         let obstacleElem = this.checkIsAvailable()
         if (obstacleElem && !this.isChecked) {
             // if () {
@@ -115,7 +123,8 @@ class Square {
     }
 
 
-    deleteBall() {
+    /**delete ball from this area */
+    public deleteBall() {
         let obstacleElem = this.checkIsAvailable()
         if (obstacleElem && this.ballHere.length) {
             //  BallList.deleteBall(this.ballHere[0]) // usuniecie kulki
@@ -134,7 +143,8 @@ class Square {
     }
 
 
-    setColor(color: string) {
+    /**set background color this square element  */
+    public setColor(color: string) {
         document.getElementById(`${this.id}`)!.style.backgroundColor = color
     }
 }
