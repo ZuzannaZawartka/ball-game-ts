@@ -1,6 +1,7 @@
 import Ball from "./Ball";
 /**
  * Class Queue cretae queue of balls 
+ * and generate colors of all balls
  */
 
 class QueueBalls {
@@ -9,11 +10,37 @@ class QueueBalls {
     public readonly quantity: number;
     /**array of balls in queue */
     public ballsInQueue: Array<Ball>;
+    /**how much colors of balls we want */
+    public static quantityColors: number;
+    /**avaiable colors of balls */
+    public static colors: Array<string>
+
 
     constructor(quantity: number) {
+
+        QueueBalls.quantityColors = 7;
+        QueueBalls.colors = this.generateColors(16777215)
         this.quantity = quantity;
         this.ballsInQueue = []
         this.generateNewBalls()
+    }
+
+
+    /**
+    * Function return random color from array
+    * @returns color in hexadecimal
+    */
+    //@log
+    private generateColors(range: number) {
+        let array = []
+        for (let i = 0; i < QueueBalls.quantityColors; i++) {
+            let color = Math.floor(Math.random() * range).toString(16);
+
+            if (array.find(el => el == color) == undefined)
+                array.push("#" + color.toString())
+        }
+        console.log(array)
+        return array
     }
 
 

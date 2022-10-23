@@ -7,16 +7,21 @@ import Game from "./Game";
 class BallList {
 
     public static balls: Array<Ball>
+    public static beatenBalls: Array<number>
     public queueBalls: QueueBalls
     public squareList: SquareList
     public size: number
 
     constructor(queueBalls: QueueBalls, squareList: SquareList) {
+
         this.queueBalls = queueBalls;
         this.squareList = squareList
         BallList.balls = []
+        BallList.beatenBalls = [0, 0, 0, 0, 0, 0, 0]
         this.size = 40;
+        BallList.generateBeatenBallsOnPage()
     }
+
 
     public static deleteBall(ball: Ball) {
         BallList.balls = BallList.balls.filter(element => element != ball)
@@ -78,8 +83,28 @@ class BallList {
         } else {
             Game.turnActiveMove(false)
             console.log(Game.isActiveMove)
-            alert("PRZEGRALES")
+            alert("PRZEGRALES, Zdobyles lacznie  :" + Game.points)
         }
+
+    }
+
+
+    /**generate balls of avaiable colors and next to points of beaten ball */
+    public static generateBeatenBallsOnPage() {
+        document.getElementById("beaten-balls-box")!.innerHTML = ""
+        QueueBalls.colors.forEach((color, index) => {
+            console.log(color)
+            let div: HTMLElement = document.createElement("div")
+            let div2: HTMLElement = document.createElement("div")
+            div.classList.add("ball-points-image")
+            div2.classList.add("ball-points")
+            div2.innerText = (BallList.beatenBalls[index]).toString()
+            let ball = new Ball(40, { x: -20, y: -20 })
+            ball.setColor(index)
+            div.appendChild(ball.create())
+            div.appendChild(div2)
+            document.getElementById("beaten-balls-box")?.appendChild(div)
+        });
 
     }
 }

@@ -1,6 +1,7 @@
 import Square from "./Square";
 import Ball from "./Ball";
 import BallList from "./BallList";
+import QueueBalls from "./QueueBalls";
 import { cordsx } from "./interfaces";
 import Game from "./Game";
 
@@ -207,17 +208,24 @@ class SquareList {
 
     /**delete ball if 5 or more in one line */
     private deleteBalls() {
-
+        let score = 0;
         this.concatedArray.forEach(ball => {
             SquareList.squareList[ball.cords.x][ball.cords.y].deleteBall()
             BallList.deleteBall(ball)
             Game.points += 1;
-
+            score++;
             this.refreshBoard()
         });
-        alert("zdobyto :" + Game.points)
-        console.log("-------------- PUNKTY :" + Game.points)
+
+        //  Ball.colors.indexOf([...this.concatedArray][0].color) //get index of color ball
+        BallList.beatenBalls[QueueBalls.colors.indexOf([...this.concatedArray][0].color)] += score;
+
+        console.log(BallList.beatenBalls)
+        document.getElementById("points")!.innerText = (Game.points).toString() // ustawienie punktow na stronie html
+        BallList.generateBeatenBallsOnPage()
     }
+
+
 
 }
 

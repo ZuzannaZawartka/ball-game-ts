@@ -39,6 +39,12 @@
       justify-content: center;
       align-items: center;
       flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #box h2 {
+      font-size: 50px;
     }
 
     h1 {
@@ -49,19 +55,69 @@
     #left-site-box {
       display: flex;
       flex-direction: row;
+      flex: 0.5;
     }
 
     .queue {
       margin: 10px;
     }
 
+    h2 {
+      color: wheat;
+    }
+
     #left-site-box-container {
+
+      color: wheat;
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #left-site-box-container h2 {
+
+      margin: 10px;
+      text-align: center;
+
+    }
+
+    #beaten-balls {
+      flex: 1;
+    }
+
+    #beaten-balls h2 {
       text-align: center;
     }
 
     #container {
       display: flex;
       flex-direction: row;
+    }
+
+    #points {
+      font-size: 40px;
+
+    }
+
+
+    #beaten-balls-box {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .ball-points-image {
+      margin: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    .ball-points {
+      text-align: center;
+      padding: 10px;
+      color: wheat;
     }
   </style>
 </head>
@@ -70,17 +126,34 @@
   <div id="container">
 
     <div id="left-site-box-container">
-      <p>Next</p>
-      <div id="left-site-box"></div>
+      <div>
+        <h2>NEXT BALLS</h2>
+        <div id="left-site-box"></div>
+      </div>
+
+
 
     </div>
-
 
 
     <div id="box">
-      <h1>Ball Game</h1>
+      <h2>Ball Game</h2>
       <div id="root"></div>
+      <div id="points-text">
+        <h3>POINTS</h3>
+
+      </div>
+      <div id="points">
+        0
+      </div>
     </div>
+
+    <div id="beaten-balls">
+      <h2>BEATEN BALLS</h2>
+      <div id="beaten-balls-box"></div>
+    </div>
+
+
   </div>
 
 </body>

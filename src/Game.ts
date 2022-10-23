@@ -1,8 +1,3 @@
-/**
- * The Game, main class which have access to other classes.
- */
-
-
 import SquareList from "./SquareList"
 import BallList from "./BallList"
 import Square from "./Square"
@@ -29,14 +24,18 @@ class Game {
     /** array of first and last element out path */
     public static startEndObject: Square[]
 
+
+
     constructor() {
-        this.queueBalls = new QueueBalls(6)
-        this.squareListClass = new SquareList(9, 50)
-        this.ballList = new BallList(this.queueBalls, this.squareListClass)
-        this.pathFinding = new PathFinding(SquareList.squareList, 9, this.squareListClass)
+
         Game.startEndObject = []
         Game.points = 0
         Game.isActiveMove = true;
+        this.queueBalls = new QueueBalls(2)
+        this.squareListClass = new SquareList(9, 50)
+        this.ballList = new BallList(this.queueBalls, this.squareListClass)
+        this.pathFinding = new PathFinding(SquareList.squareList, 9, this.squareListClass)
+
     }
 
     /** initial function  */
