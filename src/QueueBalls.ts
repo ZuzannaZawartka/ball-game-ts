@@ -30,7 +30,7 @@ class QueueBalls {
     * Function return random color from array
     * @returns color in hexadecimal
     */
-    //@log
+    // @log
     private generateColors(range: number) {
         let array = []
         for (let i = 0; i < QueueBalls.quantityColors; i++) {
